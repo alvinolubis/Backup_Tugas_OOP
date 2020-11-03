@@ -1,0 +1,229 @@
+<?php
+//config.php
+
+
+$databaseHost = 'localhost';
+$databaseName = 'crud_db';
+$databaseUsername = 'administrator';
+$databasePassword = 'kelompok11';
+
+// Create connection
+$mysqli = mysqli_connect($databaseHost, $databaseUsername, $databasePassword, $databaseName);
+
+// Checking connection
+if (!$mysqli){
+	die("Connection Failed :".mysqli_connect_error());
+}
+echo "Connection Successful";
+?>
+
+
+<?php
+//index.php
+
+// membuat koneksi database dengan file config
+include_once("config.php");
+
+//mengambil semua data pada database
+$result = mysqli_query($mysqli, "SELECT * FROM service ORDER BY order_id DESC");
+?>
+
+<html>
+<head>
+	<title>Service Laptop Bogor</title>
+</head>
+
+<body>
+	<a href="add.php">Add New Order</a><br/><br/>
+
+		<table width='80%' border=1>
+
+		<tr>
+			<th>Customer</th> <th>Contact</th> <th>Date of Order</th> <th>Type of Service</th> <th>Action</th> <th>Cost</th>
+		</tr>
+		<?php
+		while($service_data = mysqli_fetch_array($result)) {
+			echo "<tr>";
+			echo"<td>".$service_data['customer']."</td>";
+			echo"<td>".$service_data['contact']."</td>";
+			echo"<td>".$service_data['date_of_order']."</td>";
+			echo"<td>".$service_data['type_of_service']."</td>";
+			echo"<td>".$service_data['action']."</td>";
+			echo"<td>".$service_data['cost']."</td>";
+			echo"<td><a href='edit.php?id=$service_data[order_id]'>Edit</a> | <a href='delete.php?id=$service_data[order_id]'>Delete</a></td></tr>";
+		}
+		?>
+	</table>
+</body>
+</html>
+
+
+<?php
+//edit.php
+
+//include database connection file
+include_once("config.php");
+
+//Check if form is submitted
+if(isset($_POST['update']))
+{
+	$order_id = $_POST['order_id'];
+
+	$customer = $_POST['customer'];
+	$contact = $_POST['contact'];
+	$date_of_order = $_POST['date_of_order'];
+	$type_of_service = $_POST['type_of_service'];
+	$action = $_POST['action'];
+	$cost = $_POST['cost'];
+
+	//update service data
+	$result = mysqli_query($mysqli, "UPDATE service SET customer = '$customer', contact = '$contact', dateoforder = '$date_of_order', typeofservice = 'type_of_service', action = '$action', cost = '$cost' WHERE orderid=$order_id");
+
+	//redirecting to homepage
+	header('Location: index.php');
+}
+<?php
+//show selected service data (from order_id)
+
+//fetching order id
+$orderid = $_GET['order_id'];
+
+//fetch data from order id
+$result = mysqli_query($mysqli, "SELECT * FROM service WHERE order_id=$orderid");
+
+while($service_data = mysqli_fetch_array($result))
+{
+	$customer = $service_data['customer'];
+	$contact = $service_data['contact'];
+	$date_of_order = $service_data['date_of_order'];
+	$type_of_service = $service_data['type_of_service'];
+	$action = $service_data['action'];
+	$cost = $service_data['cost'];
+}
+?>
+<html>
+<head>
+	<title>Edit Service Log</title>
+</head>
+
+<body>
+	<a href="index.php">Home</a>
+	<br/><br/>
+
+	<form name="update_log" method="post" action="edit.php">
+		<table border="0">
+			<tr>
+				<td>Customer</td>
+				<td><input type="text" name="customer" value=<?php echo $customer;?>></td>
+			</tr>
+			<tr>
+				<td>Contact</td>
+				<td><input type="number" name="contact" value=<?php echo $contact;?>></td>
+			</tr>
+			<tr>
+				<td>Date of Order</td>
+				<td><input type="date" name="date_of_order" value=<?php echo $date_of_order;?>></td>
+			</tr>
+			<tr>
+				<td>Type of Service</td>
+				<td><input type="text" name="type_of_service" value=<?php echo $type_of_service;?>></td>
+			</tr>
+			<tr>
+				<td>Action</td>
+				<td><input type="text" name="action" value=<?php echo $action;?>></td>
+			</tr>
+			<tr>
+				<td>Cost</td>
+				<td><input type="number" name="cost" value=<?php echo $cost;?>></td>
+			</tr>
+			<tr>
+				<td><input type="hidden" name="order_id" value=<?php echo $_GET['order_id'];?>></td>
+				<td><input type="submit" name="update" value="Update"></td>
+			</tr>
+		</table>
+	</form>
+</body>
+</html>
+
+
+
+//add.php
+
+<html>
+<head>
+	<title>Add Orders</title>
+</head>
+
+<body>
+	<a href="index.php">Home</a>
+	<br/><br/>
+
+	<form action="add.php" method="post" name="form1">
+		<table width="25%" border="0">
+			<tr>
+				<td>Customer</td>
+				<td><input type="text" customer="customer"></td>
+			</tr>
+			<tr>
+				<td>Contact</td>
+				<td><input type="number" contact="contact"></td>
+			</tr>
+			<tr>
+				<td>Date of Order</td>
+				<td><input type="date" date_of_order="date_of_order"></td>
+			</tr>
+			<tr>
+				<td>Type of Service</td>
+				<td><input type="text" type_of_service="type_of_service"></td>
+			</tr>
+			<tr>
+				<td>Action</td>
+				<td><input type="text" action="action"></td>
+			</tr>
+			<tr>
+				<td>Cost</td>
+				<td><input type='number' cost="cost"></td>
+			</tr>
+		</table>
+	</form>
+
+	<?php
+
+	//check form submit status
+	if(isset($_POST['Submit'])) {
+		$customer = $_POST['customer'];
+		$contact = $_POST['contact'];
+		$date_of_order = $_POST['date_of_order'];
+		$type_of_service = $_POST['type_of_service'];
+		$action = $_POST['action'];
+		$cost = $_POST['cost'];
+
+		//database connection file
+		include_once("config.php");
+
+		//insert service data into table
+		$result = mysqli_query($mysqli, "INSERT INTO service(customer, contact, date_of_order, type_of_service, action, cost) VALUES('$customer, $contact, $date_of_order, $type_of_service, $action, $cost')");
+
+		//message when data added
+		echo "Order added successfully. <a href='index.php'>View Orders</a>";
+	}
+	?>
+</body>
+</html> 
+
+
+<?php
+//delete.php
+
+//include database connection file
+include_once("config.php");
+
+//get order id from url to delete data
+$orderid = $_GET['order_id'];
+
+//deleting data row from table based from order id
+$result = mysqli_query($mysqli, "DELETE FROM service WHERE orderid=$order_id");
+
+//redirecting to home
+header('Location:index.php');
+?>
